@@ -2,5 +2,5 @@
     "token": "Botin-tokeni",
     "prefix": "!",
     "botin_nimi": "Botti",
-    "mongoPass": "<mongoDB-passu"
+    "mongoPass": "mongoDB-passu"
 }
