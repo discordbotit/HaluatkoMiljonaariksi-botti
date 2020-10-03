@@ -36,7 +36,9 @@ module.exports.run = async (bot, message, args) => {
     for (let i = 1; i <= 10; i++){
     
     //Pyydetään tietoja Trivia DB:stä
-    let response = await fetch(`https://opentdb.com/api.php?amount=1&difficulty=medium&type=multiple&encode=base64`) //HUOM. linkit base64 encodella, koska defaultilla esim. heittomerkit näkyy json-tiedostossa "&quot;", käsittelemällä base64 -> uft8 tämä saadaan kaikki merkit näkymään oikein
+    //HUOM. linkit base64 encodella, koska defaultilla esim. heittomerkit näkyy json-tiedostossa "&quot;"
+    //käsittelemällä base64 -> uft8 tämä saadaan kaikki merkit näkymään oikein
+    let response = await fetch(`https://opentdb.com/api.php?amount=1&difficulty=medium&type=multiple&encode=base64`) 
     //Muutetaan nämä tiedot json-muotoon
     let data = await response.json()
 
