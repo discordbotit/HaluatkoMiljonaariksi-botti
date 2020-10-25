@@ -6,8 +6,8 @@ const fs = require("fs");
 bot.commands = new Discord.Collection();
 bot.aliases = new Discord.Collection();
 
-//LUKEE KOMENNOT-TIEDOSTON
-fs.readdir("./commands/", (err, files) => {
+//LUKEE KOMENNOT-TIEDOSTON ADMIN OSUUDEN
+fs.readdir("./commands/admin", (err, files) => {
    if(err) console.log(err);
    
    let jsfile = files.filter(f => f.split(".").pop() === "js");
@@ -15,7 +15,7 @@ fs.readdir("./commands/", (err, files) => {
        return console.log("No commands found!"); 
    }
    jsfile.forEach((f) => {
-        let props = require(`./commands/${f}`);
+        let props = require(`./commands/admin/${f}`);
         console.log(`${f} loaded!`);
         bot.commands.set(props.help.name, props);
         props.help.aliases.forEach(alias => {
@@ -23,6 +23,24 @@ fs.readdir("./commands/", (err, files) => {
         })
    })
 })
+
+//LUKEE KOMENNOT-TIEDOSTON PLAYER OSUUDEN
+fs.readdir("./commands/player", (err, files) => {
+    if(err) console.log(err);
+    
+    let jsfile = files.filter(f => f.split(".").pop() === "js");
+    if(jsfile.length <= 0){
+        return console.log("No commands found!"); 
+    }
+    jsfile.forEach((f) => {
+         let props = require(`./commands/player/${f}`);
+         console.log(`${f} loaded!`);
+         bot.commands.set(props.help.name, props);
+         props.help.aliases.forEach(alias => {
+             bot.aliases.set(alias, props.help.name);
+         })
+    })
+ })
 
 //BOTIN ILMOITUKSET YHDISTÄMISEN AIKANA
 bot.on("ready", async () => {
