@@ -45,6 +45,8 @@ module.exports.run = async (bot, message, args) => {
 
     }, (err, data) => {
 
+        //Tarkistetaan, onko kysymyskytkin päällä
+        //Jos tällaista ominaisuutta ei tarkistettaisi, voisi käyttäjä pyytää uuden kysymyksen kesken edellistä ja peli menisi ihan sekaisin
         if (data.kysymys_kytkin === true) {
             return message.reply("Et voi käyttää uusia pelikomentoja, ennen kuin olet vastannut edelliseen kysymykseen!").catch(err => console.log(err));
         }
@@ -58,6 +60,7 @@ module.exports.run = async (bot, message, args) => {
         } else {
             
             //Asetetaan kysymyskytkin trueksi, jotta pelaaja ei voi pyytää botilta uusia kysymyksiä ennen kuin päällä olevaan on vastattu
+            //Kun kysymykseen on vastattu, kytkin menee jälleen offille ja pelaajan on mahdollista pyytää uusi kysymys
             Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : true},(err, data) => {
                 if(err){
                     console.log(err)
@@ -137,8 +140,14 @@ module.exports.run = async (bot, message, args) => {
 
                     switch (reaction.emoji.name) {
                         case '🇦':
-                            
+                            //Jos valinta vastaa oikeaa vastausta, lisätään pelaajan voittoihin 100€
+                            //Jos valinta on väärä, peli on ohi ja voitot nollataan
                             if (answers[0] === data.correct_answer) {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{voitot : 100},(err, data) => {
                                     if(err){
                                         console.log(err)
@@ -148,6 +157,11 @@ module.exports.run = async (bot, message, args) => {
                                 })
                                 
                             } else {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{peli_kaynnissa : false},(err, data) => {
                                     if(err){
                                         console.log(err)
@@ -159,15 +173,26 @@ module.exports.run = async (bot, message, args) => {
                             break;
                         case '🇧':
                             if (answers[1] === data.correct_answer) {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{voitot : 100},(err, data) => {
                                     if(err){
                                         console.log(err)
                                     } else {
+                                        
                                         message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen")
                                     }
                                 })
                                 
                             } else {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{peli_kaynnissa : false},(err, data) => {
                                     if(err){
                                         console.log(err)
@@ -179,6 +204,11 @@ module.exports.run = async (bot, message, args) => {
                             break;
                         case '🇨':
                             if (answers[2] === data.correct_answer) {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{voitot : 100},(err, data) => {
                                     if(err){
                                         console.log(err)
@@ -188,6 +218,11 @@ module.exports.run = async (bot, message, args) => {
                                 })
                                 
                             } else {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{peli_kaynnissa : false},(err, data) => {
                                     if(err){
                                         console.log(err)
@@ -199,6 +234,11 @@ module.exports.run = async (bot, message, args) => {
                             break;
                         case '🇩':
                             if (answers[3] === data.correct_answer) {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{voitot : 100},(err, data) => {
                                     if(err){
                                         console.log(err)
@@ -208,6 +248,11 @@ module.exports.run = async (bot, message, args) => {
                                 })
                                 
                             } else {
+                                Data1.findOneAndUpdate({pelaajan_id: message.author.id},{kysymys_kytkin : false},(err, data) => {
+                                    if(err){
+                                        console.log(err)
+                                    } 
+                                })
                                 Data1.findOneAndUpdate({pelaajan_id: message.author.id},{peli_kaynnissa : false},(err, data) => {
                                     if(err){
                                         console.log(err)
