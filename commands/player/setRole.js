@@ -11,14 +11,16 @@ const Data = require("../../models/players.js"); //Viitataan malliin users.js
 
 module.exports.run = async (bot, message, args) => {
 
+    //Tarkistaa että onko pelaajalla jo pelirooli olemassa
     if(message.member.roles.cache.find(r => r.name === 'Haluatko miljonääriksi')) {
         return(message.reply("Sinulla on jo tämä rooli!"))
     }
-
+    //Etsii roolin serveriltä
     let role = message.guild.roles.cache.find(r => r.name === 'Haluatko miljonääriksi')
+    //Asetetaan komennon kirjoittajalle tämä rooli
     let user = message.guild.members.cache.get(message.author.id);
     user.roles.add(role);
-
+    //Luodaan tietokantaan dokumentti pelaajan tiedoista
     const newData = new Data({
         pelaajan_nimi: message.author.username,
         pelaajan_id: message.author.id,
