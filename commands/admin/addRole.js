@@ -2,9 +2,10 @@ module.exports.run = async (bot, message, args) => {
 
 
     let roleName = 'Haluatko miljonääriksi';
+    //Suoritetaan haku, löytyykö roolin nimi jo serveriltä
     let role = message.guild.roles.cache.find(x => x.name === roleName);
     if (!role) {
-    // Create a new role with data and a reason
+    // Jos ei löydy, niin luodaan sellainen
         message.guild.roles.create({
             data: {
             name: 'Haluatko miljonääriksi',
