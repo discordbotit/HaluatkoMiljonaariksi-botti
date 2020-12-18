@@ -39,16 +39,18 @@ function shuffleAnswers(new_array, answer) {
 // Tällä funktiolla luodaan lista poistettavista kysymyksistä
 function fifty_fifty(answers, correct_answer) {
 
+    
     let answers_to_be_removed = [];
-
+  
     while (answers_to_be_removed.length < 2) {
-
+  
         randomIndex = Math.floor(Math.random() * answers.length);
-        if (answers[randomIndex] !== correct_answer && answers_to_be_removed.includes(answers[randomIndex]) === false) {
-            answers_to_be_removed.push(randomIndex);
+    
+        if (answers[randomIndex] !== correct_answer && !answers_to_be_removed.includes(randomIndex)) {
+          answers_to_be_removed.push(randomIndex);
         }
     };
-
+  
     return answers_to_be_removed;
 };
 
