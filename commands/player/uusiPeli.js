@@ -12,6 +12,7 @@ mongoose.connect(botconfig.mongoPass, {
     useUnifiedTopology: true,
 });
 
+//FUNKTIOT----------------------------------------------------------------------------------------------------------------------------------
 // Tällä funktiolla saadaan esitettyä vastausvaihtoehdot random järjestyksessä, ottaa vastaan väärien vastausten arrayn ja oikean vastauksen
 function shuffleAnswers(new_array, answer) {
   
@@ -37,7 +38,7 @@ function shuffleAnswers(new_array, answer) {
 };
 
 // Tällä funktiolla luodaan lista poistettavista kysymyksistä
-function fifty_fifty(answers, correct_answer) {
+function fifty_fifty(answers, message, correct_answer,Data) {
 
     
     let answers_to_be_removed = [];
@@ -50,11 +51,76 @@ function fifty_fifty(answers, correct_answer) {
           answers_to_be_removed.push(randomIndex);
         }
     };
-  
+
+    
+    //50-50 poistuu käytössä olevien oljenkorsien listalta
+    Data.findOneAndUpdate({pelaajan_id: message.author.id}, { $pull: { kayttamattomat_oljenkorret: { $in: [ "50-50" ] }} }, (err, data) => {
+        if(err){
+            console.log(err)
+        } 
+    })
+    
     return answers_to_be_removed;
-};
+  };
+  //FUNKTIOT LOPPU----------------------------------------------------------------------------------------------------------------------------------
+
 
 module.exports.run = async (bot, message, args) => {
+
+
+//Moduulin funktiot----------------------------------------------------------------------------------------------------------------------------------    
+    //Funktio kysymys-kytkimen resetointiin ja voittoilmoitus
+    function reset_kysymys_kytkin_ja_voittoilmoitus(Data) {
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
+            if(err){
+                console.log(err)
+            } 
+        })
+
+        Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 100}, (err, data) => {
+            if(err){
+                console.log(err)
+            } else {
+                message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen.")
+            }
+        })
+
+    }
+
+    //Funktio käyttäjän pelitietojen resetointiin
+    function reset_game(Data) {
+
+        //Reset peli_kaynnissa
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {peli_kaynnissa : false}, (err, data) => {
+            if(err){
+                console.log(err)
+            } 
+        })
+        
+        //Reset kysymys_kytkin
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
+            if(err){
+                console.log(err)
+            } 
+        })
+
+        //Reset voitot
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 0}, (err, data) => {
+            if(err){
+                console.log(err)
+            } 
+        })
+
+        //50-50 poistuu käytössä olevien oljenkorsien listalta
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, { $push: { kayttamattomat_oljenkorret: [ "50-50" ] } }, (err, data) => {
+            if(err){
+                console.log(err)
+            } 
+        })
+        message.reply(`Tämä on valitettavasti väärä vastaus. Hävisit pelin.`)
+    }
+//Moduulin funktiot loppu----------------------------------------------------------------------------------------------------------------------------------
+
     
     // Testimuuttuja kysymysemotelle, false defaultisti, myöhemmin jos muuttuu trueksi niin se ilmestyy kysymykseen
     let testi = false;
@@ -100,15 +166,6 @@ module.exports.run = async (bot, message, args) => {
                 }
             })
 
-            Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 0}, (err, data) => {
-                if(err){
-                    console.log(err)
-                } else {
-                    console.log(`Nollattiin pelaajan ${data.pelaajan_nimi} voitot uuden pelin myötä.`)
-                }
-            })
-            
-            
             // Luetaan kaikkien easy-kategorian dokumenttien lukumäärä
             Data2.countDocuments().exec(function (err, count) {
 
@@ -166,119 +223,42 @@ module.exports.run = async (bot, message, args) => {
                                 // Jos valinta vastaa oikeaa vastausta, lisätään pelaajan voittoihin 100€
                                 // Jos valinta on väärä, peli on ohi ja voitot nollataan
                                 if (answers[0] === data.correct_answer) {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 100}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen.")
-                                        }
-                                    })
+
+                                    reset_kysymys_kytkin_ja_voittoilmoitus(Data1)
+
                                 } else {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {peli_kaynnissa : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply(`Tämä on valitettavasti väärä vastaus. Hävisit pelin.`)
-                                        }
-                                    })
+
+                                    reset_game(Data1)
                                 }
                                 break;
                             case '🇧':
                                 if (answers[1] === data.correct_answer) {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 100}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            
-                                            message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen.")
-                                        }
-                                    })
+
+                                    reset_kysymys_kytkin_ja_voittoilmoitus(Data1)
+
                                 } else {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {peli_kaynnissa : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply(`Tämä on valitettavasti väärä vastaus. Hävisit pelin.`)
-                                        }
-                                    })
+
+                                    reset_game(Data1)
                                 }
                                 break;
                             case '🇨':
                                 if (answers[2] === data.correct_answer) {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 100}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen.")
-                                        }
-                                    })
+
+                                    reset_kysymys_kytkin_ja_voittoilmoitus(Data1)
+
                                 } else {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {peli_kaynnissa : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply(`Tämä on valitettavasti väärä vastaus. Hävisit pelin.`)
-                                        }
-                                    })
+
+                                    reset_game(Data1)
                                 }
                                 break;
                             case '🇩':
                                 if (answers[3] === data.correct_answer) {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 100}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen.")
-                                        }
-                                    })    
+
+                                    reset_kysymys_kytkin_ja_voittoilmoitus(Data1)
+
                                 } else {
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } 
-                                    })
-                                    Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {peli_kaynnissa : false}, (err, data) => {
-                                        if(err){
-                                            console.log(err)
-                                        } else {
-                                            message.reply(`Tämä on valitettavasti väärä vastaus. Hävisit pelin.`)
-                                        }
-                                    })
+
+                                    reset_game(Data1)
                                 }
                                 break;  
                         }
@@ -296,9 +276,8 @@ module.exports.run = async (bot, message, args) => {
                 // Mitä tapahtuu, jos reagoi "❓"    
                 if (reaction.emoji.name === "❓") {
                     //Funktio valitsee randomisti kaksi väärää vastausta, jotka poistetaan
-                    let poistettavat = fifty_fifty(answers,data.correct_answer)
-                    message.reply(`Poistetaan kaksi väärää!`)
-                   
+                    let poistettavat = fifty_fifty(answers,message,data.correct_answer,Data1)
+                    
                     //Käydään läpi poistolista ja suoritetaan poisto
                     for (let i = 0; i <= 1; i++) {
                         if (poistettavat[i] === 0) {
@@ -311,6 +290,7 @@ module.exports.run = async (bot, message, args) => {
                             sentEmbed.reactions.cache.get('🇩').remove().catch(error => console.error('Failed to remove reactions: ', error)); 
                         }
                     }
+                    message.reply("Poistettiin kaksi väärää vastausvaihtoehtoa!")
                     cases();
                 }})
 
