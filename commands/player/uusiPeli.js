@@ -12,7 +12,8 @@ mongoose.connect(botconfig.mongoPass, {
     useUnifiedTopology: true,
 });
 
-//FUNKTIOT----------------------------------------------------------------------------------------------------------------------------------
+// FUNKTIOT----------------------------------------------------------------------------------------------------------------------------------
+
 // Tällä funktiolla saadaan esitettyä vastausvaihtoehdot random järjestyksessä, ottaa vastaan väärien vastausten arrayn ja oikean vastauksen
 function shuffleAnswers(new_array, answer) {
   
@@ -38,9 +39,8 @@ function shuffleAnswers(new_array, answer) {
 };
 
 // Tällä funktiolla luodaan lista poistettavista kysymyksistä
-function fifty_fifty(answers, message, correct_answer,Data) {
+function fifty_fifty(answers, message, correct_answer, Data) {
 
-    
     let answers_to_be_removed = [];
   
     while (answers_to_be_removed.length < 2) {
@@ -52,82 +52,76 @@ function fifty_fifty(answers, message, correct_answer,Data) {
         }
     };
 
-    
-    //50-50 poistuu käytössä olevien oljenkorsien listalta
-    Data.findOneAndUpdate({pelaajan_id: message.author.id}, { $pull: { kayttamattomat_oljenkorret: { $in: [ "50-50" ] }} }, (err, data) => {
-        if(err){
+    // 50-50 poistuu käytössä olevien oljenkorsien listalta
+    Data.findOneAndUpdate({pelaajan_id: message.author.id}, {$pull: {kayttamattomat_oljenkorret: {$in: [ "50-50" ]}}}, (err, data) => {
+        if (err) {
             console.log(err)
         } 
     })
     
     return answers_to_be_removed;
-  };
-  //FUNKTIOT LOPPU----------------------------------------------------------------------------------------------------------------------------------
-
+};
+// FUNKTIOT LOPPU----------------------------------------------------------------------------------------------------------------------------------
 
 module.exports.run = async (bot, message, args) => {
 
-
-//Moduulin funktiot----------------------------------------------------------------------------------------------------------------------------------    
-    //Funktio kysymys-kytkimen resetointiin ja voittoilmoitus
+    // Moduulin funktiot----------------------------------------------------------------------------------------------------------------------------------    
+    // Funktio kysymys-kytkimen resetointiin ja voittoilmoitus
     function reset_kysymys_kytkin_ja_voittoilmoitus(Data) {
-        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin: false}, (err, data) => {
             if(err){
                 console.log(err)
             } 
         })
 
         Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 100}, (err, data) => {
-            if(err){
+            if (err) {
                 console.log(err)
             } else {
                 message.reply("Aivan oikein! Voitit juuri 100€. Komennolla !seuraava voit aloittaa seuraavaan kysymyksen.")
             }
         })
+    };
 
-    }
-
-    //Funktio käyttäjän pelitietojen resetointiin
+    // Funktio käyttäjän pelitietojen resetointiin
     function reset_game(Data) {
 
-        //Reset peli_kaynnissa
+        // Reset peli_kaynnissa
         Data.findOneAndUpdate({pelaajan_id: message.author.id}, {peli_kaynnissa : false}, (err, data) => {
-            if(err){
+            if (err) {
                 console.log(err)
             } 
         })
         
-        //Reset kysymys_kytkin
-        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : false}, (err, data) => {
-            if(err){
+        // Reset kysymys_kytkin
+        Data.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin: false}, (err, data) => {
+            if (err) {
                 console.log(err)
             } 
         })
 
-        //Reset voitot
+        // Reset voitot
         Data.findOneAndUpdate({pelaajan_id: message.author.id}, {voitot : 0}, (err, data) => {
-            if(err){
+            if (err) {
                 console.log(err)
             } 
         })
 
-        //50-50 poistuu käytössä olevien oljenkorsien listalta
+        // 50-50 poistuu käytössä olevien oljenkorsien listalta
         Data.findOneAndUpdate({pelaajan_id: message.author.id}, { $push: { kayttamattomat_oljenkorret: [ "50-50" ] } }, (err, data) => {
-            if(err){
+            if (err) {
                 console.log(err)
             } 
         })
         message.reply(`Tämä on valitettavasti väärä vastaus. Hävisit pelin.`)
     }
-//Moduulin funktiot loppu----------------------------------------------------------------------------------------------------------------------------------
+// Moduulin funktiot loppu----------------------------------------------------------------------------------------------------------------------------------
 
-    
     // Testimuuttuja kysymysemotelle, false defaultisti, myöhemmin jos muuttuu trueksi niin se ilmestyy kysymykseen
-    let testi = false;
+    let oljenkorsi = false;
      
     // Etsitään olemassa olevaa dokumenttia
     Data1.findOne ({
-
         pelaajan_id: message.author.id // Etsitään dokumentti ID:n perusteella, HUOM. pitää olla databasessa numerona, ei stringinä
 
     }, (err, data) => {
@@ -144,12 +138,12 @@ module.exports.run = async (bot, message, args) => {
         } 
         else {
             if (data.kayttamattomat_oljenkorret.includes('50-50')) {
-                testi = true;
+                oljenkorsi = true;
             }
 
             // Asetetaan kysymyskytkin trueksi, jotta pelaaja ei voi pyytää botilta uusia kysymyksiä ennen kuin päällä olevaan on vastattu
             // Kun kysymykseen on vastattu, kytkin menee jälleen offille ja pelaajan on mahdollista pyytää uusi kysymys
-            Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin : true}, (err, data) => {
+            Data1.findOneAndUpdate({pelaajan_id: message.author.id}, {kysymys_kytkin: true}, (err, data) => {
                 if(err){
                     console.log(err)
                 } 
@@ -184,6 +178,8 @@ module.exports.run = async (bot, message, args) => {
 
             // Kysymyspohja
             const exampleEmbed = new Discord.MessageEmbed()
+            .attachFiles(['assets/bot_icon.jpg'])
+            .setThumbnail('attachment://bot_icon.jpg')
             .setDescription(`Category: ${data.category}`)
             .setColor('#0099ff')
             .setTitle(data.question)
@@ -191,8 +187,8 @@ module.exports.run = async (bot, message, args) => {
             .addFields({name: 'A)', value: answers[0]},
                        {name: 'B)', value: answers[1]},
                        {name: 'C)', value: answers[2]},
-                       {name: 'D)', value: answers[3]}
-            )
+                       {name: 'D)', value: answers[3]})
+            .setFooter('© Pasi Laaksonen, Yolanda Theodorakis, Antton Heinonen')
             
             // Kysymyspohjan lähetys channelille
             message.channel.send(exampleEmbed).then(async sentEmbed => {
@@ -202,13 +198,13 @@ module.exports.run = async (bot, message, args) => {
                 await sentEmbed.react("🇨")
                 await sentEmbed.react("🇩")
 
-                if (testi) {
+                if (oljenkorsi) {
                     await sentEmbed.react("❓")
                 }
 
                 // Funktio, joka määrittää, mitä eri reagoinneista tapahtuu
                 function cases() {
-                    //Asetuksia reaktioille, esim. vain yksi reagointi lasketaan (max : 1) ja myös voidaan asettaa vastausaika
+                    // Asetuksia reaktioille, esim. vain yksi reagointi lasketaan (max : 1) ja myös voidaan asettaa vastausaika
                     sentEmbed.awaitReactions(filter, {
                     max: 1,
                     // time: 30000,
@@ -278,7 +274,7 @@ module.exports.run = async (bot, message, args) => {
                     //Funktio valitsee randomisti kaksi väärää vastausta, jotka poistetaan
                     let poistettavat = fifty_fifty(answers,message,data.correct_answer,Data1)
                     
-                    //Käydään läpi poistolista ja suoritetaan poisto
+                    // Käydään läpi poistolista ja suoritetaan poisto
                     for (let i = 0; i <= 1; i++) {
                         if (poistettavat[i] === 0) {
                             sentEmbed.reactions.cache.get('🇦').remove().catch(error => console.error('Failed to remove reactions: ', error)); 
@@ -290,7 +286,7 @@ module.exports.run = async (bot, message, args) => {
                             sentEmbed.reactions.cache.get('🇩').remove().catch(error => console.error('Failed to remove reactions: ', error)); 
                         }
                     }
-                    message.reply("Poistettiin kaksi väärää vastausvaihtoehtoa!")
+                    message.reply("Poistettiin kaksi väärää vastausvaihtoehtoa.")
                     cases();
                 }})
 
