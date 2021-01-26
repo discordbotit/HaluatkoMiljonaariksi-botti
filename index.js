@@ -1,17 +1,18 @@
-const Discord = require('discord.js'); 
+const Discord = require("discord.js"); 
 const bot = new Discord.Client({disableEveryone: true}); 
-const botsettings = require('./botconfig.json') 
+const botsettings = require("./botconfig.json");
 const fs = require("fs");
 
 bot.commands = new Discord.Collection();
 bot.aliases = new Discord.Collection();
 
-//LUKEE KOMENNOT-TIEDOSTON ADMIN OSUUDEN
+// LUKEE KOMENNOT-TIEDOSTON ADMIN OSUUDEN
 fs.readdir("./commands/admin", (err, files) => {
-   if(err) console.log(err);
+   if (err) console.log(err);
    
    let jsfile = files.filter(f => f.split(".").pop() === "js");
-   if(jsfile.length <= 0){
+
+   if (jsfile.length <= 0) {
        return console.log("No commands found!"); 
    }
    jsfile.forEach((f) => {
@@ -22,14 +23,15 @@ fs.readdir("./commands/admin", (err, files) => {
             bot.aliases.set(alias, props.help.name);
         })
    })
-})
+});
 
-//LUKEE KOMENNOT-TIEDOSTON PLAYER OSUUDEN
+// LUKEE KOMENNOT-TIEDOSTON PLAYER OSUUDEN
 fs.readdir("./commands/player", (err, files) => {
-    if(err) console.log(err);
+    if (err) console.log(err);
     
     let jsfile = files.filter(f => f.split(".").pop() === "js");
-    if(jsfile.length <= 0){
+
+    if (jsfile.length <= 0) {
         return console.log("No commands found!"); 
     }
     jsfile.forEach((f) => {
@@ -40,34 +42,35 @@ fs.readdir("./commands/player", (err, files) => {
              bot.aliases.set(alias, props.help.name);
          })
     })
- })
+ });
 
-//BOTIN ILMOITUKSET YHDISTÄMISEN AIKANA
+// BOTIN ILMOITUKSET YHDISTÄMISEN AIKANA
 bot.on("ready", async () => {
     let nimi = botsettings.botin_nimi;
-    console.log(`${nimi} on ${bot.guilds.cache.size} servulla onlinessa!`); 
+    console.log(`${nimi} on ${bot.guilds.cache.size} serverillä onlinessa!`); 
     bot.user.setActivity(`with ${bot.guilds.cache.size} servers!`);  
-})
+});
 
 // KOMENTOJEN HANDLAAJA
 bot.on("message", async message => {
    
-   if(message.channel.type === "dm") return; //ESTÄÄ KOMENTOJEN AJON PRIVATE MESSAGEN KAUTTA
-   if(message.author.id === bot.user.id) return; //ESTÄÄ REAGOINNIN TOISEN BOTIN VIESTEIHIN
+   if (message.channel.type === "dm") return; // ESTÄÄ KOMENTOJEN AJON PRIVATE MESSAGEN KAUTTA
+   if (message.author.id === bot.user.id) return; // ESTÄÄ REAGOINNIN TOISEN BOTIN VIESTEIHIN
 
-   //ASETTAA ETULIITTEEN KOMENNOILLE
+   // ASETTAA ETULIITTEEN KOMENNOILLE
    let prefix = botsettings.prefix;
 
-   //TAULUKON LUONTI KOMENNOILLE
-   if(!message.content.startsWith(prefix)) return; //EI TEE MITÄÄN, JOSSEI VIESTI ALA ETULIITTEELLÄ (ESIM. "!")
-   let args = message.content.slice(prefix.length).trim().split(/ +/g); //ETULIITE JA EXTRA VÄLILYÖNNIT (ALUSTA JA LOPUSTA) POISTETAAN, VIESTI JAETAAN TAULUKKOON VÄLILYÖNTIEN PERUSTEELLA
-   let cmd = args.shift().toLowerCase(); //TAULUKON 1. ELEMENTTI POISTETAAN JA TALLENNETAAN, JÄLJELLE JÄÄVÄT MUUTTUU AUTOMAATTISESTI PIENIKSI KIRJAIMIKSI 
+   // TAULUKON LUONTI KOMENNOILLE
+   if (!message.content.startsWith(prefix)) return; // EI TEE MITÄÄN, JOS VIESTI EI ALA ETULIITTEELLÄ (ESIM. "!")
+   let args = message.content.slice(prefix.length).trim().split(/ +/g); // ETULIITE JA EXTRA VÄLILYÖNNIT (ALUSTA JA LOPUSTA) POISTETAAN, VIESTI JAETAAN TAULUKKOON VÄLILYÖNTIEN PERUSTEELLA
+   let cmd = args.shift().toLowerCase(); // TAULUKON 1. ELEMENTTI POISTETAAN JA TALLENNETAAN, JÄLJELLE JÄÄVÄT MUUTTUVAT AUTOMAATTISESTI PIENIKSI KIRJAIMIKSI 
    let command; 
 
-   //KOMENTOJEN AJO
-   if(bot.commands.has(cmd)) {
+   // KOMENTOJEN AJO
+   if (bot.commands.has(cmd)) {
      command = bot.commands.get(cmd);  
-   } else if(bot.aliases.has(cmd)) {
+   } 
+   else if (bot.aliases.has(cmd)) {
        command = bot.commands.get(bot.aliases.get(cmd));
    }
    try {
@@ -77,5 +80,5 @@ bot.on("message", async message => {
    }
 })
 
-//BOTIN TOKENI HAETAAN
+// BOTIN TOKEN HAETAAN
 bot.login(botsettings.token); 
