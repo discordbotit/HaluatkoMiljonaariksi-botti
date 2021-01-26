@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-//Dokumentin rakenteen määrittely:
+// Dokumentin rakenteen määrittely
 const dataSchema = mongoose.Schema({
     pelaajan_nimi: String,
     pelaajan_id: Number,
@@ -8,7 +8,7 @@ const dataSchema = mongoose.Schema({
     kysymys_kytkin: Boolean,
     voitot: Number,
     kayttamattomat_oljenkorret: Array,
-})
+});
 
-//Malli luo tietokantaan "playerdata(s)" kokoelman
+// Malli luo tietokantaan "playerdata(s)" kokoelman
 module.exports = mongoose.model("playersData", dataSchema);
