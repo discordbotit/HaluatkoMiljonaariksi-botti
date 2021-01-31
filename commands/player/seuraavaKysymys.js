@@ -63,7 +63,6 @@ function fifty_fifty(answers, message, correct_answer, Data) {
   
     return answers_to_be_removed;
 };
-
 // FUNKTIOT LOPPU----------------------------------------------------------------------------------------------------------------------------------
 
 module.exports.run = async (bot, message, args) => {
@@ -130,11 +129,58 @@ module.exports.run = async (bot, message, args) => {
 
     let oljenkorsi = false;
 
+    // Muuttuja kysymyksen numerolle
+    let questionNum = '';
+
     // Etsitään olemassa olevaa dokumenttia
     Data1.findOne ({
         pelaajan_id: message.author.id // Etsitään dokumentti ID:n perusteella, HUOM. pitää olla databasessa numerona (ei String)!
 
     }, (err, data) => {
+
+        // Tarkistetaan voittojen määrä ja asetetaan oikea kysymysnumero
+        if (data.voitot === 100) {
+            questionNum = 'Question 2';
+        }
+        if (data.voitot === 300) {
+            questionNum = 'Question 3';
+        }
+        if (data.voitot === 700) {
+            questionNum = 'Question 4';
+        }
+        if (data.voitot === 1000) {
+            questionNum = 'Question 5';
+        }
+        if (data.voitot === 2000) {
+            questionNum = 'Question 6';
+        }
+        if (data.voitot === 3000) {
+            questionNum = 'Question 7';
+        }
+        if (data.voitot === 5000) {
+            questionNum = 'Question 8';
+        }
+        if (data.voitot === 7000) {
+            questionNum = 'Question 9';
+        }
+        if (data.voitot === 10000) {
+            questionNum = 'Question 10';
+        }
+        if (data.voitot === 15000) {
+            questionNum = 'Question 11';
+        }
+        if (data.voitot === 30000) {
+            questionNum = 'Question 12';
+        }
+        if (data.voitot === 60000) {
+            questionNum = 'Question 13';
+        }
+        if (data.voitot === 200000) {
+            questionNum = 'Question 14';
+        }
+        if (data.voitot === 1000000) {
+            questionNum = 'Question 15';
+        }
 
         if (data.kysymys_kytkin === true) {
             return message.reply("Et voi käyttää uusia pelikomentoja, ennen kuin olet vastannut edelliseen kysymykseen!").catch(err => console.log(err));
@@ -172,7 +218,7 @@ module.exports.run = async (bot, message, args) => {
                 } else if (data.voitot === 700) {
                     palkintosumma = data.voitot + 300;
                 }
-                   
+
             // Luetaan kaikkien easy-kategorian dokumenttien lukumäärä
             Data2.countDocuments().exec(function (err, count) {
 
@@ -188,7 +234,7 @@ module.exports.run = async (bot, message, args) => {
                 
                 // Luodaan filtteri, joka sallii vain tietyillä emojeilla reagoinnin ja ainoastaan komennon kirjoittajan reagoinnit lasketaan
                 const filter = (reaction, user) => ["🇦","🇧","🇨","🇩","❓"].includes(reaction.emoji.name) && user.id === message.author.id;
-    
+
                 // Kysymyspohja
                 const exampleEmbed = new Discord.MessageEmbed()
                 .attachFiles(['assets/bot_icon.jpg'])
@@ -196,7 +242,7 @@ module.exports.run = async (bot, message, args) => {
                 .setDescription(`Category: ${data.category}`)
                 .setColor('#0099ff')
                 .setTitle(data.question)
-                .setAuthor('Question 1')
+                .setAuthor(questionNum)
                 .addFields({name: 'A)', value: answers[0]},
                         {name: 'B)', value: answers[1]},
                         {name: 'C)', value: answers[2]},
@@ -352,7 +398,7 @@ module.exports.run = async (bot, message, args) => {
                 .setDescription(`Category: ${data.category}`)
                 .setColor('#0099ff')
                 .setTitle(data.question)
-                .setAuthor('Question 1')
+                .setAuthor(questionNum)
                 .addFields({name: 'A)', value: answers[0]},
                         {name: 'B)', value: answers[1]},
                         {name: 'C)', value: answers[2]},
@@ -513,7 +559,7 @@ module.exports.run = async (bot, message, args) => {
                 .setDescription(`Category: ${data.category}`)
                 .setColor('#0099ff')
                 .setTitle(data.question)
-                .setAuthor('Question 1')
+                .setAuthor(questionNum)
                 .addFields({name: 'A)', value: answers[0]},
                         {name: 'B)', value: answers[1]},
                         {name: 'C)', value: answers[2]},
